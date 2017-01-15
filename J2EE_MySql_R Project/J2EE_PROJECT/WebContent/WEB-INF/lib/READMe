@@ -1,0 +1,10 @@
+Because of the files size, 
+please add the following libraries within the /lib directory :
+
+
+
+mysql-connector-java-5.1.40-bin.jar
+
+
+
+renjin-script-engine-0.8.2254-jar-with-dependencies.jar
