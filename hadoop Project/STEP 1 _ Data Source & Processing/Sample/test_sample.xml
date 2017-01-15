@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?><pdv_liste>
+<pdv id="1000001" latitude="4620114" longitude="519791" cp="01000" pop="R">
+  <adresse>ROUTE NATIONALE</adresse>
+  <ville>SAINT-DENIS-L&#xE8;S-BOURG</ville>
+  <ouverture debut="01:00" fin="01:00" saufjour=""/>
+  <services>
+    <service>Automate CB</service>
+    <service>Vente de gaz domestique</service>
+    <service>Station de gonflage</service>
+  </services>
+ 
+  <prix nom="Gazole" id="1" maj="2013-09-23 09:19:53.795804" valeur="1325"/>
+  <prix nom="Gazole" id="1" maj="2013-09-24 11:17:54.984788" valeur="1325"/>
+  <prix nom="Gazole" id="1" maj="2013-09-25 09:43:55.516666" valeur="1325"/>
+  <prix nom="Gazole" id="1" maj="2013-09-26 09:20:45.099964" valeur="1315"/>
+  <prix nom="Gazole" id="1" maj="2013-09-27 10:24:56.571814" valeur="1315"/>
+  <prix nom="Gazole" id="1" maj="2013-09-27 11:20:31.270462" valeur="1312"/>
+  <prix nom="Gazole" id="1" maj="2013-09-28 09:32:18.002204" valeur="1312"/>
+  <prix nom="Gazole" id="1" maj="2013-09-29 10:19:10.632462" valeur="1312"/>
+  <prix nom="Gazole" id="1" maj="2013-10-01 08:46:08.229087" valeur="1312"/>
+  <prix nom="Gazole" id="1" maj="2013-10-02 09:24:38.200487" valeur="1309"/>
+ 
+  <fermeture/>
+  <rupture/>
+</pdv>
+<pdv id="1000002" latitude="4621842" longitude="522767" cp="01000" pop="R">
+  <adresse>16 Avenue de Marboz</adresse>
+  <ville>BOURG-EN-BRESSE</ville>
+  <ouverture debut="08:45" fin="19:30" saufjour="Dimanche"/>
+  <services>
+    <service>Automate CB</service>
+    <service>Vente de gaz domestique</service>
+    <service>Station de gonflage</service>
+  </services>
+  <prix nom="Gazole" id="1" maj="2013-01-03 09:12:28.687127" valeur="1299"/>
+  <prix nom="Gazole" id="1" maj="2013-01-04 09:27:40.415383" valeur="1309"/>
+  <prix nom="Gazole" id="1" maj="2013-01-05 09:09:56.995296" valeur="1309"/>
+  <prix nom="Gazole" id="1" maj="2013-01-06 09:47:34.556167" valeur="1309"/>
+  <prix nom="Gazole" id="1" maj="2013-01-07 10:12:50.283467" valeur="1309"/>
+  <prix nom="Gazole" id="1" maj="2013-01-08 09:59:09.304395" valeur="1315"/>
+  <prix nom="Gazole" id="1" maj="2013-01-10 09:24:08.515181" valeur="1319"/>
+ 
+  <rupture id="3" nom="E85" debut="2009-11-03 12:19:00" fin=""/>
+  <fermeture/>
+</pdv>

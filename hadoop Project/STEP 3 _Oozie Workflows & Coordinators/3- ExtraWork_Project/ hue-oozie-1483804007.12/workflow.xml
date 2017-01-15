@@ -1,0 +1,51 @@
+<workflow-app name="Global_WF" xmlns="uri:oozie:workflow:0.5">
+    <start to="shell-7c62"/>
+    <kill name="Kill">
+        <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <action name="shell-7c62">
+        <shell xmlns="uri:oozie:shell-action:0.1">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <exec>/user/hdfs/BigDataProject/ExtraWork/1_yearly_data_shell.sh</exec>
+            <file>/user/hdfs/BigDataProject/ExtraWork/1_yearly_data_shell.sh#1_yearly_data_shell.sh</file>
+              <capture-output/>
+        </shell>
+        <ok to="hive2-5da4"/>
+        <error to="Kill"/>
+    </action>
+    <action name="hive2-5da4" cred="hive2">
+        <hive2 xmlns="uri:oozie:hive2-action:0.1">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <jdbc-url>jdbc:hive2://quickstart.cloudera:10000/default</jdbc-url>
+            <script>/user/hdfs/BigDataProject/ExtraWork/2_yearly_data_hive.hql</script>
+            <file>/user/hdfs/BigDataProject/ExtraWork/2_yearly_data_hive.hql#2_yearly_data_hive.hql</file>
+        </hive2>
+        <ok to="shell-660d"/>
+        <error to="Kill"/>
+    </action>
+    <action name="shell-660d">
+        <shell xmlns="uri:oozie:shell-action:0.1">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <exec>/user/hdfs/BigDataProject/ExtraWork/3_daily_data_shell.sh</exec>
+            <file>/user/hdfs/BigDataProject/ExtraWork/3_daily_data_shell.sh#3_daily_data_shell.sh</file>
+              <capture-output/>
+        </shell>
+        <ok to="hive2-ee24"/>
+        <error to="Kill"/>
+    </action>
+    <action name="hive2-ee24" cred="hive2">
+        <hive2 xmlns="uri:oozie:hive2-action:0.1">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <jdbc-url>jdbc:hive2://quickstart.cloudera:10000/default</jdbc-url>
+            <script>/user/hdfs/BigDataProject/ExtraWork/4_daily_data_hive.hql</script>
+            <file>/user/hdfs/BigDataProject/ExtraWork/4_daily_data_hive.hql#4_daily_data_hive.hql</file>
+        </hive2>
+        <ok to="End"/>
+        <error to="Kill"/>
+    </action>
+    <end name="End"/>
+</workflow-app>

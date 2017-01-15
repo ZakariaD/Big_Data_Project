@@ -1,0 +1,10 @@
+
+******************************* For your information **************************************
+
+As shown in the snapshots, the example was using only daily data instead of yearly data, otherwise the job will be stuck at 0%, but the scripts given use yearly data, and next daily data.
+
+The execution of the fisrt step (shell script) using yearly data took around 19min25s
+
+Thank you.
+
+************************************************************
