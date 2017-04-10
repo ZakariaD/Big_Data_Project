@@ -1,0 +1,379 @@
+
+
+#**************************************************************Hadoop Cluster: Step by Step********************************************************
+
+1- Create a user and connect with it in each node and add him to the list of sudoers bellow the root
+
+#***************** Master Node**************#
+
+sudo adduser hadoop-master
+password: hadoop
+sudo visudo		
+
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+hadoop-master ALL=(ALL:ALL) ALL
+
+#connect using the new user name
+su hadoop-master
+pwd : hadoop
+
+#***************** Slave Node 1 **************#
+
+sudo adduser hadoop_slave1
+password: hadoop
+sudo visudo		
+
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+hadoop_slave1 ALL=(ALL:ALL) ALL
+
+#connect using the new user name
+su hadoop_slave1
+pwd : hadoop
+
+#***************** Slave Node 2 **************#
+
+sudo adduser hadoop_slave2
+password: hadoop
+sudo visudo		
+
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+hadoop_slave2 ALL=(ALL:ALL) ALL
+
+#connect using the new user name
+su hadoop_slave2
+pwd : hadoop
+
+
+2- Mapping the nodes (all nodes)
+
+sudo nano /etc/hosts
+pwd: hadoop
+
+master_node_ip   master
+slave_node1_ip   slave1
+slave_node2_ip   slave2
+
+
+3- SSH Configuring Key Based Login for passwordless communication between the master and the nodes
+
+ssh-keygen -t rsa -P ""
+ssh-copy-id -i ~/.ssh/id_rsa.pub hadoop-master@master
+ssh-copy-id -i $HOME/.ssh/id_rsa.pub hadoop_slave1@slave1
+ssh-copy-id -i $HOME/.ssh/id_rsa.pub hadoop_slave2@slave2
+
+
+#test : ssh hadoop-master@master; ssh hadoop_slave1@slave1; ssh hadoop_slave2@slave2;
+
+#We use the master : ssh hadoop-master@master
+
+4- Hadoop Installation
+
+allnodes$ wget http://wwwftp.ciril.fr/pub/apache/hadoop/common/hadoop-2.7.2/hadoop-2.7.2.tar.gz
+
+allnodes$ sudo tar xvfz hadoop-2.7.2.tar.gz -C /usr/local
+
+allnodes$ sudo mkdir /usr/local/hadoop
+
+allnodes$ sudo mv /usr/local/hadoop-*/* /usr/local/hadoop
+
+5- Environment Variables : on all Nodes
+
+sudo nano ~/.profile
+
+export JAVA_HOME=/usr
+export PATH=$PATH:$JAVA_HOME/bin
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
+
+
+#test each command alone:  . ~/.profile ; echo $HADOOP_HOME; hadoop version
+
+6- Hadoop Configurations : Common Hadoop Configurations on all Nodes
+
+#*********hadoop-env.sh **********
+
+sudo nano $HADOOP_CONF_DIR/hadoop-env.sh 	
+
+#replace
+
+${JAVA_HOME} with /usr
+
+#***********core-site.xml***********
+
+sudo nano $HADOOP_CONF_DIR/core-site.xml
+
+#add
+
+<configuration>
+	<property>
+		<name>fs.defaultFS</name>
+		<value>hdfs://master:9000</value> <!-- IP master -->
+	</property>
+</configuration>
+
+#***********yarn-site.xml************
+
+sudo nano $HADOOP_CONF_DIR/yarn-site.xml
+
+#add
+
+<configuration>
+
+<!-- Site specific YARN configuration properties -->
+
+  <property>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+    <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value>master</value>
+  </property>
+
+</configuration> 
+
+#***********mapred-site.xml**************
+
+
+sudo cp $HADOOP_CONF_DIR/mapred-site.xml.template $HADOOP_CONF_DIR/mapred-site.xml
+
+sudo nano $HADOOP_CONF_DIR/mapred-site.xml
+
+<configuration>
+  <property>
+    <name>mapreduce.jobtracker.address</name>
+    <value>master:54311</value>
+  </property>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+</configuration>
+
+
+7- NameNode Specific Configurations (for the master)
+
+sudo nano $HADOOP_CONF_DIR/hdfs-site.xml
+
+<configuration>
+	<property>
+		<name>dfs.replication</name>
+		<value>1</value>
+	</property>
+	<property>
+		<name>dfs.namenode.name.dir</name>
+		<value>
+		file:///usr/local/hadoop/hadoop_data/hdfs/namenode
+		</value>
+	</property>
+
+</configuration>
+
+********
+
+8- The current path where data on the NameNode will reside does not exist, we need to make this before starting HDFS
+
+sudo mkdir -p $HADOOP_HOME/hadoop_data/hdfs/namenode
+
+9- Defining master and slaves on all nodes
+
+#****** masters file************
+
+sudo nano $HADOOP_CONF_DIR/masters (all nodes)
+
+#add
+
+master
+
+#*******slaves file*************
+
+sudo nano $HADOOP_CONF_DIR/slaves  (all nodes) 
+
+hadoop_slave1@slave1
+hadoop_slave2@slave2
+
+10- Changing the ownership of the $HADOOP_HOME directory to the user in the master node
+
+sudo chown -R hadoop-master /usr/local/hadoop (in the master node)
+
+
+11- DataNode Specific Configurations
+
+#Accessing the slave nodes via the master node using ssh protocole
+
+ssh hadoop_slave1@slave1 # for the slave1
+
+ssh hadoop_slave2@slave2 # for the slave
+
+# In each node open the hdfs-site.xml file
+
+sudo nano $HADOOP_CONF_DIR/hdfs-site.xml
+
+# Add
+
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:///usr/local/hadoop/hadoop_data/hdfs/datanode</value>
+  </property>
+</configuration>
+
+*************
+
+12- The current path where data on each data nodes will reside does not exist, we need to make this before starting HDFS
+
+sudo mkdir -p $HADOOP_HOME/hadoop_data/hdfs/datanode
+
+13- Changing the ownership of the $HADOOP_HOME directory to the user in each slave node
+
+sudo chown -R hadoop_slave1 /usr/local/hadoop (in the slave1 node)
+sudo chown -R hadoop_slave2 /usr/local/hadoop (in the slave2 node)
+
+14- Start Hadoop Cluster
+
+#Removing the hdfs folder content
+
+rm -Rf /usr/local/hadoop/hadoop_data/hdfs/
+
+#Sourcing the profile file
+. ~/.profile
+
+#Formatting HDFS
+
+namenode$ hdfs namenode -format
+
+#Starting All nodes
+
+namenode$ $HADOOP_HOME/sbin/start-all.sh
+
+#To be sure the data nodes are running 
+
+$HADOOP_HOME/sbin/hadoop-daemon.sh start datanode
+
+
+**************************************************************Spark Cluster: Step by Step******************************************************************************
+
+
+1- Install Scala with the following:
+
+allnodes$ sudo apt-get install scala   (test : scala -version)
+
+2- Install Spark
+
+allnodes$ wget http://d3kbcqa49mib13.cloudfront.net/spark-1.6.0-bin-hadoop2.6.tgz -P ~/Downloads
+
+allnodes$ sudo tar zxvf ~/Downloads/spark-* -C /usr/local
+
+allnodes$ sudo mkdir /usr/local/spark
+
+allnodes$ sudo mv /usr/local/spark-*/* /usr/local/spark  
+
+3- Environment Variables
+
+sudo nano ~/.profile
+
+#add
+
+export SPARK_HOME=/usr/local/spark  
+export PATH=$PATH:$SPARK_HOME/bin
+
+allnodes$ . ~/.profile  
+
+sudo chown -R hadoop-master $SPARK_HOME  (in the master node) 
+sudo chown -R hadoop_slave1 $SPARK_HOME  (in the slave1 node) 
+sudo chown -R hadoop_slave2 $SPARK_HOME  (in the slave2 node) 
+
+4- Spark Configurations
+
+#Common Spark Configurations on all Nodes
+
+allnodes$ cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh  
+
+allnodes$ sudo nano $SPARK_HOME/conf/spark-env.sh
+
+#add
+
+export JAVA_HOME=/usr  
+export SPARK_PUBLIC_DNS=master  
+export SPARK_WORKER_CORES=6  
+
+#In the slave1 and slave2 nodes change master by slave1, and slave2 respectiveley  
+
+5- Spark Master Specific Configurations (In the master node)
+
+sudo nano $SPARK_HOME/conf/slaves
+
+hadoop_slave1@slave1
+hadoop_slave2@slave2 
+
+6- Start the Spark Cluster using the master node
+
+spark_master_node$ $SPARK_HOME/sbin/start-all.sh  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
